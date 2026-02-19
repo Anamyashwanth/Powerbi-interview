@@ -1,5 +1,5 @@
 1. How do you design a data model for a large dataset?
-  Here is a **2-minute interview answer** you can deliver confidently:
+  <br>Here is a **2-minute interview answer** you can deliver confidently:
 **Answer:**
 
 When designing a data model for a large dataset, my approach focuses on **performance, scalability, and usability for reporting**.
