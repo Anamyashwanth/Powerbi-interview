@@ -499,7 +499,165 @@ Because it is used only to capture user input and control logic through DAX, not
 
 ----
 
-8. 
+8. ## What is TREATAS in DAX?
+
+### Definition
+
+**TREATAS** is a DAX function used to **apply filters from one table (or column) to another unrelated table**.
+
+In simple terms:
+
+> TREATAS creates a **virtual relationship** between tables during calculation.
+
+It is useful when:
+
+* Tables are not related in the model
+* You want to filter one table based on values from another
+
+
+
+## Syntax
+
+```DAX id="h4s0a1"
+TREATAS(<table_expression>, <column1>, [column2], ...)
+```
+
+| Parameter        | Meaning                                         |
+| ---------------- | ----------------------------------------------- |
+| table_expression | Table or values to apply as filter              |
+| column(s)        | Target column(s) where filter should be applied |
+
+
+
+## Basic Example
+
+### Scenario
+
+Two tables:
+
+* Sales table
+* Target table
+
+No relationship exists.
+
+We want to filter Sales based on selected Products.
+
+
+
+### Measure
+
+```DAX id="7m2l8p"
+Sales by Selected Product =
+CALCULATE(
+    [Total Sales],
+    TREATAS(
+        VALUES(Dim_Product[ProductID]),
+        Fact_Sales[ProductID]
+    )
+)
+```
+
+
+
+## How It Works
+
+1. `VALUES(Dim_Product[ProductID])` gets selected products
+2. `TREATAS` applies those values as a filter on Fact_Sales[ProductID]
+3. `CALCULATE` computes sales for those products
+
+**Acts like a relationship without creating one in the model**
+
+
+
+## Base Measure
+
+```DAX id="v3n9f6"
+Total Sales = SUM(Fact_Sales[SalesAmount])
+```
+
+
+
+## When Do You Use TREATAS?
+
+| Scenario                       | Example                 |
+| ------------------------------ | ----------------------- |
+| No relationship between tables | Apply filters virtually |
+| Many-to-many situations        | Controlled filtering    |
+| Disconnected tables            | Parameter filtering     |
+| Advanced modeling              | Virtual relationships   |
+
+
+
+## Example: Disconnected Table Filtering
+
+### Disconnected Region Table
+
+```DAX id="x1k7s2"
+Sales by Selected Region =
+CALCULATE(
+    [Total Sales],
+    TREATAS(
+        VALUES('Region Selector'[Region]),
+        Fact_Sales[Region]
+    )
+)
+```
+
+
+
+## Multiple Columns Example
+
+```DAX id="c5p8d4"
+CALCULATE(
+    [Total Sales],
+    TREATAS(
+        VALUES(Table1[Year], Table1[Month]),
+        Fact_Sales[Year],
+        Fact_Sales[Month]
+    )
+)
+```
+
+Number and order of columns must match.
+
+
+
+## TREATAS vs Related Functions (Interview)
+
+| Function        | Purpose                        |
+| --------------- | ------------------------------ |
+| USERELATIONSHIP | Activate inactive relationship |
+| CROSSFILTER     | Change filter direction        |
+| TREATAS         | Create virtual relationship    |
+
+
+
+## Important Points
+
+* Used inside **CALCULATE**
+* Does not change model structure
+* Works dynamically
+* Powerful for advanced scenarios
+
+
+## Interview Answer (2-Min Version)
+
+TREATAS is a DAX function used to apply filters from one table to another unrelated table by creating a virtual relationship during calculation. It is commonly used when tables do not have a physical relationship, in disconnected table scenarios, many-to-many cases, or advanced filtering requirements. TREATAS is used inside CALCULATE and helps control filter propagation without modifying the data model.
+
+
+
+## Interview Tip
+
+If asked:
+**When is TREATAS preferred over creating a relationship?**
+
+Answer:
+When the relationship is temporary, complex, many-to-many, or when using disconnected tables for dynamic filtering.
+
+---
+
+
+
 
 
 
