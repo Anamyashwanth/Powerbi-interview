@@ -89,7 +89,6 @@ Example:
 | East   | Furniture   | C       | 300   | 1    |
 | West   | Electronics | A       | 450   | 1    |
 
----
 
 ## Step 1: Base Measure
 
@@ -98,7 +97,7 @@ Total Sales =
 SUM(factSales[SalesAmount])
 ```
 
----
+
 
 ## Step 2: Rank within Region & Category
 
@@ -117,7 +116,7 @@ RANKX(
 )
 ```
 
----
+
 
 ## How it Works (Interview Explanation)
 
@@ -140,7 +139,7 @@ ALLEXCEPT(factSales, Region, Category)
 * `DESC` → Highest sales = Rank 1
 * `DENSE` → No rank gaps
 
----
+
 
 ## SQL Equivalent (Good for Interviews)
 
@@ -151,7 +150,7 @@ RANK() OVER (
 )
 ```
 
----
+
 
 ## Best Practice (Star Schema)
 
@@ -172,7 +171,7 @@ RANKX(
 )
 ```
 
----
+
 
 ## Top N within Region & Category (Common Follow-up)
 
@@ -184,7 +183,7 @@ IF(
 )
 ```
 
----
+
 
 ## Interview Tip
 
@@ -198,7 +197,169 @@ IF(
 
 ---
 
-6.
+6. This is a **very common interview comparison**. These three functions look similar but are used for **different purposes**.
+
+Let’s understand with **definition, syntax, when to use, and examples**.
+
+
+
+# ISINSCOPE vs HASONEVALUE vs ISFILTERED
+
+## 1. ISINSCOPE()
+
+### Syntax
+
+```DAX
+ISINSCOPE(<column>)
+```
+
+### Definition
+
+Checks whether a column is present at the **current level of a hierarchy in a visual**.
+
+### When to use
+
+* Matrix or hierarchy visuals
+* Drill-down scenarios
+* Level-based calculations
+
+
+
+### Example
+
+Hierarchy: Category → Subcategory
+
+```DAX
+Sales Display =
+IF(
+    ISINSCOPE(Dim_Product[Subcategory]),
+    [Total Sales],
+    BLANK()
+)
+```
+
+Shows sales only at Subcategory level.
+
+
+
+## 2. HASONEVALUE()
+
+### Syntax
+
+```DAX
+HASONEVALUE(<column>)
+```
+
+### Definition
+
+Returns TRUE if the column has **only one value in the current filter context**.
+
+### When to use
+
+* When exactly one value is selected
+* Validation for single selection
+
+
+
+### Example
+
+```DAX
+Sales (Single Category) =
+IF(
+    HASONEVALUE(Dim_Product[Category]),
+    [Total Sales]
+)
+```
+
+
+
+## 3. ISFILTERED()
+
+### Syntax
+
+```DAX
+ISFILTERED(<column_or_table>)
+```
+
+### Definition
+
+Returns TRUE if a column or table is **directly filtered** by:
+
+* Slicer
+* Visual
+* Filter pane
+
+
+
+### Example
+
+```DAX
+Sales When Filtered =
+IF(
+    ISFILTERED(Dim_Product[Category]),
+    [Total Sales],
+    BLANK()
+)
+```
+
+
+# Key Differences
+
+| Function    | Checks                     |
+| ----------- | -------------------------- |
+| ISINSCOPE   | Hierarchy level in visual  |
+| HASONEVALUE | Exactly one value selected |
+| ISFILTERED  | Any direct filter applied  |
+
+
+
+# Example Scenario
+
+If slicer selects:
+
+* Category = Electronics
+
+| Function              | Result                                            |
+| --------------------- | ------------------------------------------------- |
+| HASONEVALUE(Category) | TRUE                                              |
+| ISFILTERED(Category)  | TRUE                                              |
+| ISINSCOPE(Category)   | TRUE only if Category is used in visual hierarchy |
+
+
+
+If multiple categories selected:
+
+| Function    | Result                  |
+| ----------- | ----------------------- |
+| HASONEVALUE | FALSE                   |
+| ISFILTERED  | TRUE                    |
+| ISINSCOPE   | Depends on visual level |
+
+
+
+# When to Use (Interview Tip)
+
+| Requirement            | Function    |
+| ---------------------- | ----------- |
+| Check hierarchy level  | ISINSCOPE   |
+| Check single selection | HASONEVALUE |
+| Check if filter exists | ISFILTERED  |
+
+
+
+# Interview Answer (2-Min Version)
+
+ISINSCOPE is used to detect whether a column is currently at a specific hierarchy level in a visual, mainly for drill-down or matrix scenarios. HASONEVALUE checks whether only one value exists in the current filter context and is used when a calculation requires a single selection. ISFILTERED checks whether a column or table is directly filtered by a slicer, visual, or filter pane. Each function serves a different purpose: hierarchy detection, single-value validation, and filter detection respectively.
+
+
+
+# Important Interview Follow-up
+
+**Which is best for Matrix level control?**
+Answer: **ISINSCOPE**
+
+----
+
 7.
 8. 
 
