@@ -1,6 +1,6 @@
 1. How do you design a data model for a large dataset?
   <br>Here is a **2-minute interview answer** you can deliver confidently:
-**Answer:**
+<br>**Answer:**
 
 When designing a data model for a large dataset, my approach focuses on **performance, scalability, and usability for reporting**.
 
@@ -46,13 +46,20 @@ Auto-generated
 
 Used for relationships between tables
 
--------
+---
 
 2. Difference between Star Schema and Snowflake Schema?
-  Star schema is a dimensional model where a central fact table is connected to denormalized dimension tables, while in a snowflake schema, dimension tables are normalized into multiple related tables.
+  <br>Star schema is a dimensional model where a central fact table is connected to denormalized dimension tables, while in a snowflake schema, dimension tables are normalized into multiple related tables.
 
 Star schema has fewer tables, simpler relationships, and faster query performance, whereas snowflake schema reduces data redundancy but increases complexity and requires more joins.
 
 In Power BI, star schema is recommended because it improves performance, simplifies DAX calculations, and provides better compression and usability.
 
-3. 
+---
+3. Difference between Calculated Column and Measure?
+<br>  A calculated column is computed during data refresh and stored in the model, using row context. It is used when we need a column for filtering, grouping, or relationships. However, it increases model size.
+
+A measure is calculated at query time based on filter context and is not stored in memory. Measures are used for aggregations in visuals and provide better performance. In most scenarios, measures are preferred over calculated columns to optimize the model.
+
+------
+4. 
