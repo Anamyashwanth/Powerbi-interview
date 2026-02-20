@@ -360,7 +360,145 @@ Answer: **ISINSCOPE**
 
 ----
 
-7.
+7. ## How do you create Dynamic Measure Selection in Power BI?
+
+### Concept
+
+Dynamic measure selection allows users to:
+
+> Choose a metric (Sales, Profit, Quantity, etc.) from a slicer and display the selected measure dynamically.
+
+This is implemented using:
+
+* **Disconnected Table**
+* **SELECTEDVALUE()**
+* **SWITCH()**
+
+
+
+## Step-by-Step Implementation
+
+### Step 1: Create a Disconnected Table
+
+Create a table for measure names:
+
+```DAX id="1m8w8f"
+Measure Selector =
+DATATABLE(
+    "Metric", STRING,
+    {
+        {"Sales"},
+        {"Profit"},
+        {"Quantity"}
+    }
+)
+```
+
+**Important:**
+Do **not create any relationship** with other tables.
+
+
+
+### Step 2: Create Base Measures
+
+```DAX id="c0n3f8"
+Total Sales = SUM(Fact_Sales[SalesAmount])
+
+Total Profit = SUM(Fact_Sales[Profit])
+
+Total Quantity = SUM(Fact_Sales[Quantity])
+```
+
+
+
+### Step 3: Capture User Selection
+
+#### SELECTEDVALUE Syntax
+
+```DAX id="q9z6y2"
+SELECTEDVALUE(<column>, [alternate_result])
+```
+
+Returns the selected value from slicer.
+
+
+### Step 4: Create Dynamic Measure using SWITCH
+
+```DAX id="k3n1x4"
+Selected Metric Value =
+SWITCH(
+    SELECTEDVALUE('Measure Selector'[Metric]),
+    "Sales", [Total Sales],
+    "Profit", [Total Profit],
+    "Quantity", [Total Quantity],
+    BLANK()
+)
+```
+
+
+
+### Step 5: Use in Report
+
+1. Add **Measure Selector[Metric]** to a slicer
+2. Add **Selected Metric Value** to visuals
+
+Now visuals change based on user selection.
+
+
+## How It Works Internally
+
+1. User selects "Sales" in slicer
+2. Filter applies to disconnected table
+3. `SELECTEDVALUE()` returns "Sales"
+4. `SWITCH()` returns `[Total Sales]`
+
+
+
+## Optional: Dynamic Title
+
+```DAX id="v4k2m7"
+Selected Metric Title =
+"Showing: " &
+SELECTEDVALUE('Measure Selector'[Metric], "Sales")
+```
+
+
+
+## Functions Used
+
+| Function      | Purpose                      |
+| ------------- | ---------------------------- |
+| DATATABLE     | Create disconnected table    |
+| SELECTEDVALUE | Get slicer selection         |
+| SWITCH        | Return corresponding measure |
+
+
+
+## When to Use Dynamic Measure Selection?
+
+* KPI switching (Sales/Profit)
+* Financial reports
+* Dashboard simplification
+* Avoid multiple visuals
+
+
+
+## Interview Answer (2-Min Version)
+
+Dynamic measure selection is implemented using a disconnected table that contains measure names. The selected value from the slicer is captured using SELECTEDVALUE, and a SWITCH function is used to return the corresponding measure dynamically. This approach allows a single visual to display different metrics based on user selection and is commonly used for KPI switching and interactive dashboards.
+
+
+
+## Interview Tip
+
+If asked:
+**Why use a disconnected table?**
+
+Answer:
+Because it is used only to capture user input and control logic through DAX, not to filter data directly.
+
+----
+
 8. 
 
 
