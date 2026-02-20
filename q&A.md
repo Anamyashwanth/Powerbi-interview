@@ -62,4 +62,148 @@ In Power BI, star schema is recommended because it improves performance, simplif
 A measure is calculated at query time based on filter context and is not stored in memory. Measures are used for aggregations in visuals and provide better performance. In most scenarios, measures are preferred over calculated columns to optimize the model.
 
 ------
-4. 
+4. How do you carry filters from one report to another?
+
+<br>If navigation is within the same report, I use Drillthrough to pass filter context. For different reports, I use cross-report drillthrough or URL filtering. Drillthrough passes the user’s filter and slicer context automatically. DAX functions like ALLSELECTED only control filter behavior within a report and are not used for transferring filters.
+
+| Scenario                | Solution                  |
+| ----------------------- | ------------------------- |
+| Page → Page (same PBIX) | Drillthrough              |
+| Report → Report         | Cross-report Drillthrough |
+| Dynamic navigation      | URL Filters               |
+
+----
+5. ## Rank within Region & Category (Multi-Group Ranking)
+
+**Requirement:**
+Rank **Products** within each **Region and Category** based on Sales.
+
+Ranking should restart for every **Region–Category combination**.
+
+Example:
+
+| Region | Category    | Product | Sales | Rank |
+| ------ | ----------- | ------- | ----- | ---- |
+| East   | Electronics | A       | 500   | 1    |
+| East   | Electronics | B       | 400   | 2    |
+| East   | Furniture   | C       | 300   | 1    |
+| West   | Electronics | A       | 450   | 1    |
+
+---
+
+## Step 1: Base Measure
+
+```DAX id="rwc_base"
+Total Sales =
+SUM(factSales[SalesAmount])
+```
+
+---
+
+## Step 2: Rank within Region & Category
+
+```DAX id="rwc_main"
+Rank Within Region Category =
+RANKX(
+    ALLEXCEPT(
+        factSales,
+        factSales[Region],
+        factSales[Category]
+    ),
+    [Total Sales],
+    ,
+    DESC,
+    DENSE
+)
+```
+
+---
+
+## How it Works (Interview Explanation)
+
+### ALLEXCEPT
+
+```DAX id="rwc_logic"
+ALLEXCEPT(factSales, Region, Category)
+```
+
+* Removes all filters
+* Keeps only:
+
+  * Region
+  * Category
+* So ranking happens **within each Region–Category group**
+
+### RANKX
+
+* Ranks products based on Total Sales
+* `DESC` → Highest sales = Rank 1
+* `DENSE` → No rank gaps
+
+---
+
+## SQL Equivalent (Good for Interviews)
+
+```sql id="rwc_sql"
+RANK() OVER (
+    PARTITION BY Region, Category
+    ORDER BY Sales DESC
+)
+```
+
+---
+
+## Best Practice (Star Schema)
+
+If you have dimension tables:
+
+```DAX id="rwc_best"
+Rank Within Region Category =
+RANKX(
+    ALLEXCEPT(
+        Dim_Product,
+        Dim_Region[Region],
+        Dim_Category[Category]
+    ),
+    [Total Sales],
+    ,
+    DESC,
+    DENSE
+)
+```
+
+---
+
+## Top N within Region & Category (Common Follow-up)
+
+```DAX id="rwc_topn"
+Top3 Within Region Category =
+IF(
+    [Rank Within Region Category] <= 3,
+    [Total Sales]
+)
+```
+
+---
+
+## Interview Tip
+
+**When to use ALLEXCEPT?**
+
+| Scenario              | Function    |
+| --------------------- | ----------- |
+| Rank within group     | ALLEXCEPT   |
+| Rank overall          | ALL         |
+| Rank based on slicers | ALLSELECTED |
+
+---
+
+6.
+7.
+8. 
+
+
+
+
+
+
